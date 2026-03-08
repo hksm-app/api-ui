@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API Reference</title>
+  <link rel="icon" href="dist/favicon.ico" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!--
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  @hikasami/api-ui                                            ║
+    ║  Drop the two lines below onto any page and call init().     ║
+    ║                                                              ║
+    ║  unpkg CDN (once published to npm):                          ║
+    ║    https://unpkg.com/@hikasami/api-ui/dist/api-ui.css        ║
+    ║    https://unpkg.com/@hikasami/api-ui/dist/api-ui.js         ║
+    ╚══════════════════════════════════════════════════════════════╝
+  -->
+
+  <!-- OPTION A — local (development) -->
+  <link rel="stylesheet" href="dist/api-ui.css" />
+
+  <!-- OPTION B — unpkg CDN
+  <link rel="stylesheet" href="https://unpkg.com/@hikasami/api-ui@1.0.0/dist/api-ui.css" />
+  -->
+</head>
+<body>
+
+<!-- The UI will be injected into this element -->
+<div id="hau-root"></div>
+
+<!-- OPTION A — local -->
+<script src="dist/api-ui.js"></script>
+
+<!-- OPTION B — unpkg CDN 
+<script src="https://unpkg.com/@hikasami/api-ui@1.0.0/dist/api-ui.js"></script>
+-->
+
+<script>
+  HikasamiApiUI.init({
+    // URL to your OpenAPI 3.x JSON spec
+    specUrl: '/swagger/openapi.json',
+
+    // App name shown in the header
+    appName: 'My API',
+
+    // Custom logo: either a URL to an image…
+    // logoImgUrl: '/logo.png',
+
+    // …or raw inline SVG (default: layer-stack icon)
+    // logoSvg: '<svg>…</svg>',
+
+    // Custom favicon URL (default: dist/favicon.ico is auto-detected)
+    // faviconUrl: '/my-favicon.ico',
+
+    // Accent colour (hex / rgb / any CSS colour)
+    accentColor: '#0B8AFC',
+
+    // localStorage key for the saved JWT token
+    tokenKey: 'myapp_jwt',
+
+    // ID of the DOM element to mount the UI into (default: 'hau-root')
+    mountId: 'hau-root',
+  });
+</script>
+
+</body>
+</html>

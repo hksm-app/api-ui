@@ -1,0 +1,35 @@
+{
+  "name": "@hikasami/api-ui",
+  "version": "1.0.0",
+  "description": "Dark API reference UI for OpenAPI 3.x specs. Layout with Try It panel, JWT auth, resizable response pane.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/api-ui.js",
+  "style": "dist/api-ui.css",
+  "files": [
+    "dist/",
+    "index.html",
+    "README.md"
+  ],
+  "keywords": [
+    "openapi",
+    "swagger",
+    "api",
+    "docs",
+    "reference",
+    "dark-theme",
+    "jwt"
+  ],
+  "author": "Hikasami Development",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hksm-app/api-ui"
+  },
+  "bugs": {
+    "url": "https://github.com/hksm-app/api-ui/issues"
+  },
+  "homepage": "https://github.com/hksm-app/api-ui",
+  "unpkg": "dist/api-ui.js"
+}
