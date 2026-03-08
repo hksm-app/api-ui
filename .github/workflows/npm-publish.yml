@@ -17,24 +17,13 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Install environment
-        run: npm ci
-
-      - name: Build for release
-        id: build
-        run: npm run build
-
-      - name: Publish new version to NPM
-        id: publish-to-npm
-        if: steps.build.outcome == 'success'
-        run: |
-          echo "publishing"
-          npm publish --provenance --access public
+      - name: Publish to NPM
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
