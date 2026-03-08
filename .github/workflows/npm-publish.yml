@@ -7,6 +7,9 @@ on:
   push:
     paths:
       - "package.json"
+      - "README.md"
+      - "dist/"
+      - "scripts/"
 
 jobs:
   publish-to-npm:

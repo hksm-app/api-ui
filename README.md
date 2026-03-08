@@ -1,5 +1,8 @@
 # @hikasami/api-ui
 
+[![npm version](https://img.shields.io/npm/v/@hikasami/api-ui.svg)](https://www.npmjs.com/package/@hikasami/api-ui)
+[![unpkg](https://img.shields.io/badge/unpkg-available-blue)](https://unpkg.com/@hikasami/api-ui/)
+
 Dark API Reference UI for OpenAPI 3.x — Layout with sidebar navigation, documentation panel and live **Try It** panel.
 
 ## Features
@@ -14,13 +17,16 @@ Dark API Reference UI for OpenAPI 3.x — Layout with sidebar navigation, docume
 
 ## Quick start
 
-### Via unpkg CDN
+### Via CDN (unpkg or jsDelivr)
 
 ```html
-<link rel="stylesheet"
-  href="https://unpkg.com/@hikasami/api-ui/dist/api-ui.min.css" />
-<script
-  src="https://unpkg.com/@hikasami/api-ui/dist/api-ui.min.js"></script>
+<!-- unpkg -->
+<link rel="stylesheet" href="https://unpkg.com/@hikasami/api-ui@2/dist/api-ui.min.css" />
+<script src="https://unpkg.com/@hikasami/api-ui@2/dist/api-ui.min.js"></script>
+
+<!-- or jsDelivr -->
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hikasami/api-ui@2/dist/api-ui.min.css" /> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/@hikasami/api-ui@2/dist/api-ui.min.js"></script> -->
 
 <div id="hau-root"></div>
 <script>
@@ -77,8 +83,10 @@ Override any CSS custom property **before** loading the stylesheet:
 │   ├── api-ui.min.css  ← minified styles
 │   ├── api-ui.js       ← runtime (source)
 │   ├── api-ui.min.js   ← minified runtime
-│   └── favicon.ico      ← default favicon
-├── index.html                ← demo / usage example
+│   └── favicon.ico     ← default favicon
+├── scripts/
+│   └── build.js        ← minify script
+├── index.html          ← demo / usage example
 ├── package.json
 └── README.md
 ```
@@ -96,4 +104,4 @@ Add the following to your `<head>` (or self-host):
 
 ## License
 
-MIT
+Apache-2.0
