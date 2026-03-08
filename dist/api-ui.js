@@ -116,7 +116,7 @@
 </header>
 
 <div id="hau-body">
-  <nav id="hau-sb"><div id="hau-sb-inner"></div></nav>
+  <nav id="hau-sb"><div id="hau-sb-inner"></div><div id="hau-sb-resize" title="Drag to resize"></div></nav>
   <div id="hau-main">
     <div id="hau-doc">
       <div id="hau-landing">
@@ -152,6 +152,7 @@
       </div>
     </div>
     <div id="hau-try-panel" class="hidden">
+      <div id="hau-try-panel-resize" title="Drag to resize"></div>
       <div class="hau-try-hdr">
         <div>
           <div class="hau-try-hdr-title">Try It</div>
@@ -280,6 +281,7 @@
     _buildSidebar();
     _buildStats();
     _updateAuthUI();
+    _restoreFromHash();
     const stored = _getToken();
     const b = _el('hau-try-bearer');
     if (b && stored) b.value = stored;
@@ -304,6 +306,34 @@
     _el('hau-stat-tags').textContent = tagSet.size;
     _el('hau-stat-get').textContent = gets;
     _el('hau-stat-post').textContent = posts;
+  }
+
+  function _restoreFromHash() {
+    const hash = location.hash.slice(1);
+    if (!hash) return;
+    let method, path;
+    try {
+      const decoded = decodeURIComponent(hash);
+      const sep = decoded.indexOf('|');
+      if (sep < 0) return;
+      method = decoded.slice(0, sep).toUpperCase();
+      path = decoded.slice(sep + 1);
+    } catch (_) {
+      return;
+    }
+    if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) return;
+    const paths = spec.paths || {};
+    const op = paths[path] && paths[path][method.toLowerCase()];
+    if (!op) return;
+    const btn = Array.from(document.querySelectorAll('.hau-sb-ep')).find(el => el.dataset.method === method && el.dataset.path === path);
+    if (btn) {
+      const group = btn.closest('.hau-sb-group');
+      if (group) {
+        group.querySelector('.hau-sb-eps').classList.add('open');
+        group.querySelector('.hau-sb-group-hd').classList.add('open');
+      }
+    }
+    _openOp(method, path, op, btn || null);
   }
 
   function _buildSidebar() {
@@ -354,6 +384,7 @@
   }
 
   function _openOp(method, path, op, btn) {
+    location.hash = encodeURIComponent(method + '|' + path);
     document.querySelectorAll('.hau-sb-ep').forEach(e => e.classList.remove('active'));
     if (btn) btn.classList.add('active');
     _el('hau-landing').style.display = 'none';
@@ -375,6 +406,7 @@
   }
 
   function _goHome() {
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
     document.querySelectorAll('.hau-sb-ep').forEach(e => e.classList.remove('active'));
     _el('hau-landing').style.display = '';
     _el('hau-ep-detail').style.display = 'none';
@@ -551,36 +583,106 @@
 
   // ── RESIZE ──────────────────────────────────────────────────────────────────
   function _initResize() {
+    // Try response panel (vertical)
     const handle = _el('hau-try-response-resize');
     const panel = _el('hau-try-response');
-    if (!handle || !panel) return;
-    const saved = localStorage.getItem('hau_resp_h');
-    if (saved) panel.style.height = saved + 'px';
-    let startY = 0,
-      startH = 0,
-      dragging = false;
-    handle.addEventListener('mousedown', e => {
-      dragging = true;
-      startY = e.clientY;
-      startH = panel.getBoundingClientRect().height;
-      handle.classList.add('dragging');
-      document.body.style.userSelect = 'none';
-      document.body.style.cursor = 'ns-resize';
-      e.preventDefault();
-    });
-    document.addEventListener('mousemove', e => {
-      if (!dragging) return;
-      const d = startY - e.clientY;
-      panel.style.height = Math.max(56, Math.min(startH + d, window.innerHeight * .8)) + 'px';
-    });
-    document.addEventListener('mouseup', () => {
-      if (!dragging) return;
-      dragging = false;
-      handle.classList.remove('dragging');
-      document.body.style.userSelect = '';
-      document.body.style.cursor = '';
-      localStorage.setItem('hau_resp_h', parseInt(panel.style.height));
-    });
+    if (handle && panel) {
+      const saved = localStorage.getItem('hau_resp_h');
+      if (saved) panel.style.height = saved + 'px';
+      let startY = 0, startH = 0, dragging = false;
+      handle.addEventListener('mousedown', e => {
+        dragging = true;
+        startY = e.clientY;
+        startH = panel.getBoundingClientRect().height;
+        handle.classList.add('dragging');
+        document.body.style.userSelect = 'none';
+        document.body.style.cursor = 'ns-resize';
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', e => {
+        if (!dragging) return;
+        const d = startY - e.clientY;
+        panel.style.height = Math.max(56, Math.min(startH + d, window.innerHeight * .8)) + 'px';
+      });
+      document.addEventListener('mouseup', () => {
+        if (!dragging) return;
+        dragging = false;
+        handle.classList.remove('dragging');
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        localStorage.setItem('hau_resp_h', parseInt(panel.style.height));
+      });
+    }
+
+    // Sidebar (horizontal resize)
+    const sbResize = _el('hau-sb-resize');
+    const sb = _el('hau-sb');
+    if (sbResize && sb) {
+      const savedSb = localStorage.getItem('hau_sb_w');
+      if (savedSb) {
+        const w = parseInt(savedSb, 10);
+        if (w >= 180 && w <= 500) sb.style.width = w + 'px';
+      }
+      let startX = 0, startW = 0, sbDragging = false;
+      sbResize.addEventListener('mousedown', e => {
+        sbDragging = true;
+        startX = e.clientX;
+        startW = sb.getBoundingClientRect().width;
+        sbResize.classList.add('dragging');
+        document.body.style.userSelect = 'none';
+        document.body.style.cursor = 'col-resize';
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', e => {
+        if (!sbDragging) return;
+        const d = e.clientX - startX;
+        const w = Math.max(180, Math.min(500, startW + d));
+        sb.style.width = w + 'px';
+      });
+      document.addEventListener('mouseup', () => {
+        if (!sbDragging) return;
+        sbDragging = false;
+        sbResize.classList.remove('dragging');
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        localStorage.setItem('hau_sb_w', parseInt(sb.style.width));
+      });
+    }
+
+    // Try panel (horizontal resize)
+    const tpResize = _el('hau-try-panel-resize');
+    const tp = _el('hau-try-panel');
+    if (tpResize && tp) {
+      const savedTp = localStorage.getItem('hau_tp_w');
+      if (savedTp) {
+        const w = parseInt(savedTp, 10);
+        if (w >= 300 && w <= 600) tp.style.width = w + 'px';
+      }
+      let startX = 0, startW = 0, tpDragging = false;
+      tpResize.addEventListener('mousedown', e => {
+        tpDragging = true;
+        startX = e.clientX;
+        startW = tp.getBoundingClientRect().width;
+        tpResize.classList.add('dragging');
+        document.body.style.userSelect = 'none';
+        document.body.style.cursor = 'col-resize';
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', e => {
+        if (!tpDragging) return;
+        const d = startX - e.clientX;
+        const w = Math.max(300, Math.min(600, startW + d));
+        tp.style.width = w + 'px';
+      });
+      document.addEventListener('mouseup', () => {
+        if (!tpDragging) return;
+        tpDragging = false;
+        tpResize.classList.remove('dragging');
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        localStorage.setItem('hau_tp_w', parseInt(tp.style.width));
+      });
+    }
   }
 
   // ── EVENTS ──────────────────────────────────────────────────────────────────
@@ -637,6 +739,17 @@
           g.querySelector('.hau-sb-group-hd').classList.add('open');
         }
       });
+    });
+
+    // Hash change (back/forward) - restore endpoint from URL
+    window.addEventListener('hashchange', () => {
+      if (!spec) return;
+      const hash = location.hash.slice(1);
+      if (!hash) {
+        _goHome();
+        return;
+      }
+      _restoreFromHash();
     });
 
     // Resize init after DOM injected

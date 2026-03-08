@@ -181,7 +181,7 @@ body {
   align-items: center;
   gap: 5px;
   padding: 5px 12px;
-  background: transparent;
+  background: var(--hau-bg3);
   border: 1px solid var(--hau-border2);
   border-radius: var(--hau-rs);
   color: var(--hau-t2);
@@ -194,8 +194,7 @@ body {
 }
 
 #hau-dl-btn:hover {
-  border-color: var(--hau-accent);
-  color: var(--hau-accent);
+  color: #fff;
   background: var(--hau-acglow);
 }
 
@@ -237,14 +236,14 @@ body {
 }
 
 #hau-auth-btn.authed {
-  border-color: #1ec91938;
-  color: #1ec919;
-  background: #1ec91929;
+  background: rgba(1,179,126,.1);
+  border: 1px solid rgba(1,179,126,.25);
+  color: #01b37e;
 }
 
 #hau-auth-btn.authed .hau-auth-dot {
-  background: #1ec919;
-  box-shadow: 0 0 6px #1ec91929;
+  background: #01b37e;
+  box-shadow: 0 0 6px rgba(1,179,126,.29);
 }
 
 .hau-auth-dot {
@@ -389,9 +388,9 @@ body {
 }
 
 .hau-auth-status-bar.ok {
-  background: rgba(1, 179, 126, .1);
-  border: 1px solid rgba(1, 179, 126, .25);
-  color: var(--hau-accent);
+  background: rgba(1,179,126,.1);
+  border: 1px solid rgba(1,179,126,.25);
+  color: #01b37e;
 }
 
 .hau-auth-status-bar.empty {
@@ -456,13 +455,32 @@ body {
 /* ── SIDEBAR ── */
 #hau-sb {
   width: var(--hau-sb);
-  min-width: var(--hau-sb);
+  min-width: 180px;
+  max-width: 500px;
   background: var(--hau-bg2);
   border-right: 1px solid var(--hau-border);
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+}
+
+#hau-sb-resize {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+}
+
+#hau-sb-resize:hover,
+#hau-sb-resize.dragging {
+  background: var(--hau-accent);
+  opacity: 0.3;
 }
 
 #hau-sb-inner {
@@ -958,14 +976,32 @@ body {
 /* ── TRY-IT PANEL ── */
 #hau-try-panel {
   width: 380px;
-  min-width: 340px;
-  max-width: 420px;
+  min-width: 300px;
+  max-width: 600px;
   background: var(--hau-bg2);
   border-left: 1px solid var(--hau-border);
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+}
+
+#hau-try-panel-resize {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+}
+
+#hau-try-panel-resize:hover,
+#hau-try-panel-resize.dragging {
+  background: var(--hau-accent);
+  opacity: 0.3;
 }
 
 #hau-try-panel.hidden {
