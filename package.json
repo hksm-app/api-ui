@@ -1,12 +1,12 @@
 {
   "name": "@hikasami/api-ui",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Dark API reference UI for OpenAPI 3.x specs. Layout with Try It panel, JWT auth, resizable response pane.",
   "publishConfig": {
     "access": "public"
   },
-  "main": "dist/api-ui.js",
-  "style": "dist/api-ui.css",
+  "main": "dist/api-ui.min.js",
+  "style": "dist/api-ui.min.css",
   "files": [
     "dist/",
     "index.html",
@@ -31,5 +31,13 @@
     "url": "https://github.com/hksm-app/api-ui/issues"
   },
   "homepage": "https://github.com/hksm-app/api-ui",
-  "unpkg": "dist/api-ui.js"
+  "unpkg": "dist/api-ui.min.js",
+  "scripts": {
+    "build": "node ./scripts/build.js",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "clean-css-cli": "^5.6.0",
+    "terser": "^5.36.0"
+  }
 }

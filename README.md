@@ -18,9 +18,9 @@ Dark API Reference UI for OpenAPI 3.x — Layout with sidebar navigation, docume
 
 ```html
 <link rel="stylesheet"
-  href="https://unpkg.com/@hikasami/api-ui@1.0.0/dist/api-ui.css" />
+  href="https://unpkg.com/@hikasami/api-ui/dist/api-ui.min.css" />
 <script
-  src="https://unpkg.com/@hikasami/api-ui@1.0.0/dist/api-ui.js"></script>
+  src="https://unpkg.com/@hikasami/api-ui/dist/api-ui.min.js"></script>
 
 <div id="hau-root"></div>
 <script>
@@ -35,8 +35,8 @@ Dark API Reference UI for OpenAPI 3.x — Layout with sidebar navigation, docume
 ### Local (copy `dist/` folder)
 
 ```html
-<link rel="stylesheet" href="dist/api-ui.css" />
-<script src="dist/api-ui.js"></script>
+<link rel="stylesheet" href="dist/api-ui.min.css" />
+<script src="dist/api-ui.min.js"></script>
 
 <div id="hau-root"></div>
 <script>
@@ -73,9 +73,11 @@ Override any CSS custom property **before** loading the stylesheet:
 
 ```
 ├── dist/
-│   ├── api-ui.css   ← styles
-│   ├── api-ui.js    ← runtime (UMD)
-│   └── favicon.ico  ← default favicon
+│   ├── api-ui.css      ← styles (source)
+│   ├── api-ui.min.css  ← minified styles
+│   ├── api-ui.js       ← runtime (source)
+│   ├── api-ui.min.js   ← minified runtime
+│   └── favicon.ico      ← default favicon
 ├── index.html                ← demo / usage example
 ├── package.json
 └── README.md
