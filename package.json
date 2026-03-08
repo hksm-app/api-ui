@@ -1,6 +1,6 @@
 {
   "name": "@hikasami/api-ui",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Dark API reference UI for OpenAPI 3.x specs. Layout with Try It panel, JWT auth, resizable response pane.",
   "publishConfig": {
     "access": "public"

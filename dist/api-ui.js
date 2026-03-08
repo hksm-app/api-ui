@@ -418,13 +418,32 @@
     _updateAuthUI();
   }
 
+  // ── PARAMETER RESOLUTION ─────────────────────────────────────────────────
+  function _resolveParam(p) {
+    if (p && p.$ref) {
+      const name = p.$ref.split('/').pop();
+      return (spec.components && spec.components.parameters && spec.components.parameters[name]) || p;
+    }
+    return p;
+  }
+
+  function _resolveAllParams(path, op) {
+    const pathItem = spec.paths && spec.paths[path] || {};
+    const pathLevel = (pathItem.parameters || []).map(_resolveParam);
+    const opLevel = (op.parameters || []).map(_resolveParam);
+    const merged = new Map();
+    pathLevel.forEach(p => merged.set(p.name + '|' + p.in, p));
+    opLevel.forEach(p => merged.set(p.name + '|' + p.in, p));
+    return Array.from(merged.values());
+  }
+
   // ── DOC BODY ────────────────────────────────────────────────────────────────
   function _renderEpBody(method, path, op) {
     const body = _el('hau-ep-body');
     let html = '';
     if (op.description && op.description !== op.summary)
       html += `<div class="hau-ep-section"><div class="hau-ep-section-title">Description</div><p style="color:var(--hau-t2);font-size:13.5px;line-height:1.7;">${_esc(op.description)}</p></div>`;
-    const allParams = op.parameters || [];
+    const allParams = _resolveAllParams(path, op);
     if (allParams.length) {
       html += '<div class="hau-ep-section"><div class="hau-ep-section-title">Parameters</div><table class="hau-params-table"><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>';
       allParams.forEach(p => {
@@ -495,9 +514,10 @@
     if (b) b.value = _getToken();
     const fields = _el('hau-try-fields');
     fields.innerHTML = '';
-    const pathParams = (op.parameters || []).filter(p => p.in === 'path');
-    const queryParams = (op.parameters || []).filter(p => p.in === 'query');
-    const headerParams = (op.parameters || []).filter(p => p.in === 'header');
+    const resolvedParams = _resolveAllParams(path, op);
+    const pathParams = resolvedParams.filter(p => p.in === 'path');
+    const queryParams = resolvedParams.filter(p => p.in === 'query');
+    const headerParams = resolvedParams.filter(p => p.in === 'header');
     [
       ['Path Parameters', pathParams, 'path', true],
       ['Query Parameters', queryParams, 'query', false],
