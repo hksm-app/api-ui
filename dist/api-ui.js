@@ -216,14 +216,77 @@
 </div>`;
   }
 
+  // ── AUTH COOKIES (HKSM_ACCESS / HKSM_REFRESH, document.cookie) ──────────────
+  const SESSION_MAX_AGE = 30 * 24 * 60 * 60;
+  const HKSM_ACCESS = 'HKSM_ACCESS';
+  const HKSM_REFRESH = 'HKSM_REFRESH';
+
+  function authCookieDomainSuffix(hostname) {
+    const h = String(hostname || '').toLowerCase();
+    if (h === 'hikasami.com' || h.endsWith('.hikasami.com')) return '; Domain=.hikasami.com';
+    return '';
+  }
+
+  function setAuthCookie(name, value) {
+    const host = typeof location !== 'undefined' ? location.hostname : '';
+    const isProd =
+      typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production';
+    const secure = isProd ? '; Secure' : '';
+    const domain = authCookieDomainSuffix(host);
+    const maxAge = value === '' ? 0 : SESSION_MAX_AGE;
+    const encName = encodeURIComponent(name);
+    const encVal = value === '' ? '' : encodeURIComponent(value);
+    document.cookie =
+      encName +
+      '=' +
+      encVal +
+      '; Path=/; Max-Age=' +
+      maxAge +
+      '; SameSite=Strict' +
+      secure +
+      domain;
+  }
+
+  function _getCookieRaw(name) {
+    const parts = document.cookie.split(';');
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i].trim();
+      const eq = p.indexOf('=');
+      if (eq < 0) continue;
+      const k = decodeURIComponent(p.slice(0, eq).trim());
+      if (k === name) {
+        return decodeURIComponent(p.slice(eq + 1));
+      }
+    }
+    return '';
+  }
+
   // ── TOKEN STORAGE ───────────────────────────────────────────────────────────
   function _getToken() {
-    return localStorage.getItem(cfg.tokenKey) || '';
+    const fromCookie = _getCookieRaw(HKSM_ACCESS);
+    if (fromCookie) return fromCookie;
+    try {
+      const legacy = localStorage.getItem(cfg.tokenKey);
+      if (legacy) {
+        setAuthCookie(HKSM_ACCESS, legacy);
+        localStorage.removeItem(cfg.tokenKey);
+        return legacy;
+      }
+    } catch (_) {}
+    return '';
   }
 
   function _saveToken() {
     const val = _el('hau-auth-token-input').value.trim();
-    val ? localStorage.setItem(cfg.tokenKey, val) : localStorage.removeItem(cfg.tokenKey);
+    if (val) {
+      setAuthCookie(HKSM_ACCESS, val);
+    } else {
+      setAuthCookie(HKSM_ACCESS, '');
+      setAuthCookie(HKSM_REFRESH, '');
+    }
+    try {
+      localStorage.removeItem(cfg.tokenKey);
+    } catch (_) {}
     _updateAuthUI();
     const b = _el('hau-try-bearer');
     if (b) b.value = val;
@@ -231,7 +294,11 @@
   }
 
   function _clearToken() {
-    localStorage.removeItem(cfg.tokenKey);
+    setAuthCookie(HKSM_ACCESS, '');
+    setAuthCookie(HKSM_REFRESH, '');
+    try {
+      localStorage.removeItem(cfg.tokenKey);
+    } catch (_) {}
     _el('hau-auth-token-input').value = '';
     const b = _el('hau-try-bearer');
     if (b) b.value = '';
