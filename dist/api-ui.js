@@ -38,6 +38,11 @@
     _injectHTML();
     _bindEvents();
     _loadSpec().catch(console.error);
+    if (typeof queueMicrotask === 'function') {
+      queueMicrotask(() => _syncAuthFromCookie());
+    } else {
+      setTimeout(() => _syncAuthFromCookie(), 0);
+    }
   }
 
   // ── FONTS ──────────────────────────────────────────────────────────────────
@@ -247,18 +252,64 @@
       domain;
   }
 
+  function _decodeCookiePart(raw) {
+    if (raw == null || raw === '') return '';
+    try {
+      return decodeURIComponent(raw.replace(/\+/g, ' '));
+    } catch (_) {
+      return raw;
+    }
+  }
+
+  function _stripCookieDquotes(v) {
+    const t = String(v).trim();
+    if (t.length >= 2 && t.charAt(0) === '"' && t.charAt(t.length - 1) === '"') {
+      return t.slice(1, -1);
+    }
+    return t;
+  }
+
+  /** Reads a non-HttpOnly cookie set on this document origin (RFC6265-style split). */
   function _getCookieRaw(name) {
-    const parts = document.cookie.split(';');
+    if (!document.cookie) return '';
+    const parts = document.cookie.split(/\s*;\s*/);
     for (let i = 0; i < parts.length; i++) {
-      const p = parts[i].trim();
+      const p = parts[i];
       const eq = p.indexOf('=');
       if (eq < 0) continue;
-      const k = decodeURIComponent(p.slice(0, eq).trim());
-      if (k === name) {
-        return decodeURIComponent(p.slice(eq + 1));
-      }
+      const keyRaw = p.slice(0, eq).trim();
+      const valRaw = p.slice(eq + 1);
+      const keyDecoded = _decodeCookiePart(keyRaw);
+      if (keyDecoded !== name && keyRaw !== name) continue;
+      return _stripCookieDquotes(_decodeCookiePart(valRaw));
     }
     return '';
+  }
+
+  function _syncAuthFromCookie() {
+    _updateAuthUI();
+    const b = _el('hau-try-bearer');
+    if (b && !b.value.trim()) {
+      const t = _getToken();
+      if (t) b.value = t;
+    }
+  }
+
+  function _bindAuthCookieResync() {
+    if (typeof window === 'undefined') return;
+    let timer = null;
+    const schedule = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer = null;
+        _syncAuthFromCookie();
+      }, 30);
+    };
+    window.addEventListener('focus', schedule);
+    window.addEventListener('pageshow', schedule);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') schedule();
+    });
   }
 
   // ── TOKEN STORAGE ───────────────────────────────────────────────────────────
@@ -857,6 +908,8 @@
       }
       _restoreFromHash();
     });
+
+    _bindAuthCookieResync();
 
     // Resize init after DOM injected
     setTimeout(_initResize, 0);
